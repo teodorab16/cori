@@ -30,7 +30,7 @@ npm run build      # static site in dist/
 
 ## Adding a real design
 
-1. Put 4 photos in `src/assets/designs/<slug>/`, in this order: `onbody` (running, front), `detail` (front held open), `back`, `lifestyle` (café). Match the biscotto's angles and light, at least 2,000 px on the long edge.
+1. Put 6 photos in `src/assets/designs/<slug>/`, in this order: `onbody` (running, front), `flatfront` (studio, flat), `detail` (front held open), `flatback` (studio, flat), `back` (worn, pocket open), `lifestyle` (café). Match the biscotto's angles, backdrop and light, at least 2,000 px on the long edge.
 2. In `designs.ts`, import them, set `status: 'live'`, remove `sketch`, and set `swatch`/`tint`/`panel`.
 3. Bump `CATALOG.version` in `config.ts`, so data from the old line-up stays separate.
 

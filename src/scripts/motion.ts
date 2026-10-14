@@ -145,6 +145,9 @@ function pack(): void {
 }
 
 export function initMotion(): void {
+  // Don't recalculate on every mobile address-bar resize; do recalculate when the vote changes the page height.
+  ScrollTrigger.config({ ignoreMobileResize: true });
+  addEventListener('cori:layout', () => requestAnimationFrame(() => ScrollTrigger.refresh()));
   route();
   document.querySelectorAll<SVGSVGElement>('[data-scene="deck"]').forEach(sceneDeck);
   document.querySelectorAll<SVGSVGElement>('[data-scene="bars"]').forEach(sceneBars);

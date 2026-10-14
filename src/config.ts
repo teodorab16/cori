@@ -26,7 +26,7 @@ export const UK_SIZES_OUTSIDE = ['UK 4 or smaller', 'UK 22', 'UK 24', 'UK 26', '
 
 export const CATALOG = {
   // Bump whenever designs are added, removed or re-photographed; it tags every event.
-  version: '2026-10-14.2',
+  version: '2026-10-14.3',
   // Sketches are stand-ins for designs that don't exist yet. Turn this off before sharing the vote,
   // or pass ?preview=1 to see them anyway.
   showSketches: true,

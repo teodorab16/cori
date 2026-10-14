@@ -1,6 +1,8 @@
 import type { ImageMetadata } from 'astro';
 import biscottoOnbody from '../assets/designs/biscotto/onbody.jpg';
+import biscottoFlatFront from '../assets/designs/biscotto/flatfront.jpg';
 import biscottoDetail from '../assets/designs/biscotto/detail.jpg';
+import biscottoFlatBack from '../assets/designs/biscotto/flatback.jpg';
 import biscottoBack from '../assets/designs/biscotto/back.jpg';
 import biscottoLifestyle from '../assets/designs/biscotto/lifestyle.jpg';
 
@@ -18,9 +20,9 @@ export interface Sketch {
 export interface DesignImage {
   src: ImageMetadata;
   alt: string;
-  // Every design shows the same 4 shots in the same order, so no design wins on photography:
-  // on-body running front, open-front detail, back, lifestyle.
-  shot: 'onbody' | 'detail' | 'back' | 'lifestyle';
+  // Every design shows the same 6 shots in the same order, so no design wins on photography:
+  // running (front), flat front, front held open, flat back, back worn, café.
+  shot: 'onbody' | 'flatfront' | 'detail' | 'flatback' | 'back' | 'lifestyle';
 }
 
 export interface Design {
@@ -49,11 +51,13 @@ export const designs: Design[] = [
     swatch: '#EDD7BF',
     heart: '#4C2C1F',
     tint: '#F1E9DE',
-    panel: '#E4D6C4',
+    panel: '#D0BEAE', // matches the studio backdrop of the flat shots
     images: [
       { src: biscottoOnbody, alt: 'A runner in the park wearing the biscotto vest, pockets filled', shot: 'onbody' },
+      { src: biscottoFlatFront, alt: 'The biscotto vest laid flat, front view, pockets filled', shot: 'flatfront' },
       { src: biscottoDetail, alt: 'The biscotto vest held open to show the bungee lacing inside', shot: 'detail' },
-      { src: biscottoBack, alt: 'The back of the biscotto vest with the zipped pocket open', shot: 'back' },
+      { src: biscottoFlatBack, alt: 'The biscotto vest laid flat, back view with the zipped pocket', shot: 'flatback' },
+      { src: biscottoBack, alt: 'The back of the biscotto vest worn, with the zipped pocket open', shot: 'back' },
       { src: biscottoLifestyle, alt: 'The biscotto vest worn at a café table', shot: 'lifestyle' },
     ],
   },

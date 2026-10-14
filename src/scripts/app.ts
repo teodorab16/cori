@@ -301,7 +301,8 @@ class VoteFlow {
     q('[data-shot-label]', card).textContent = String(next + 1);
     const slug = card.dataset.slug as string;
     const key = `${slug}:${next}`;
-    if (!this.shotsSeen.has(key)) {
+    // Photo 0 is the card face, already counted by card_view.
+    if (next > 0 && !this.shotsSeen.has(key)) {
       this.shotsSeen.add(key);
       track('image_view', { design: slug, shot: next });
     }
@@ -590,6 +591,9 @@ class VoteFlow {
 
   private showStage(name: string): void {
     for (const s of qa('[data-stage]', this.root)) s.hidden = s.dataset.stage !== name;
+    // Only the deck is locked to one screen on phones; the other stages size to their content.
+    document.querySelector('[data-first-screen]')?.classList.toggle('is-voting', name === 'deck');
+    window.dispatchEvent(new Event('cori:layout'));
     const stage = q(`[data-stage="${name}"]`, this.root);
     if (!reduceMotion()) gsap.from(stage, { y: 18, opacity: 0, duration: 0.45, ease: 'power3.out', clearProps: 'all' });
     stage.querySelector<HTMLElement>('.stage__title')?.focus({ preventScroll: true });

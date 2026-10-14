@@ -45,6 +45,8 @@ html[data-accent='cobalt'] {
 html {
   background: var(--tint);
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -57,6 +59,7 @@ body {
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 img,
@@ -256,73 +259,6 @@ a {
   color: var(--ink-3);
 }
 
-/* Phones: the vote is exactly one screen. The card grows or shrinks to fit, the buttons sit
-   just above the browser's bottom bar, and the rest of the hero starts below the fold. */
-@media (max-width: 899px) {
-  .hero {
-    display: block;
-    padding-top: 0;
-  }
-  .hero__first {
-    display: flex;
-    flex-direction: column;
-  }
-  .hero__first:has([data-stage='deck']:not([hidden])) {
-    height: calc(100vh - var(--header-h));
-    height: calc(100svh - var(--header-h));
-    min-height: 480px;
-    padding: 4px 0 14px;
-  }
-  .hero__copy {
-    flex: 0 0 auto;
-    margin-bottom: 12px;
-  }
-  .kicker {
-    margin-bottom: 6px;
-  }
-  .hero__title {
-    max-width: none;
-    font-size: clamp(28px, 7.9vw, 46px);
-  }
-  .vote {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-  .stage--deck {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-  .deck {
-    flex: 1 1 auto;
-    min-height: 250px;
-  }
-  .deck::before {
-    display: none;
-  }
-  .deck-actions {
-    margin-top: 12px;
-  }
-  .deck-actions .btn {
-    height: 52px;
-  }
-  .hero__more {
-    margin-top: 40px;
-  }
-  .fav-pill {
-    height: 36px;
-    min-width: 56px;
-    padding: 0 12px;
-  }
-  .toast {
-    top: calc(var(--header-h) + 8px);
-    bottom: auto;
-  }
-}
-
 @media (min-width: 900px) {
   .hero__first {
     display: contents;
@@ -462,8 +398,14 @@ a {
 .card__img--lifestyle {
   object-position: 50% 40%;
 }
+/* The back shot has callouts on its right edge: keep them in frame on narrow cards. */
 .card__img--back {
-  object-position: 50% 55%;
+  object-position: 85% 50%;
+}
+/* Flat studio shots are shown whole, on a panel that matches their backdrop. */
+.card__img--flatfront,
+.card__img--flatback {
+  object-fit: contain;
 }
 .vest-sketch {
   width: 84%;
@@ -1574,6 +1516,87 @@ a {
   font-size: 22px;
   letter-spacing: -0.02em;
 }
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .hero__copy {
+    text-align: center;
+  }
+}
+
+/* Phone overrides come last so they always win over the base rules above. */
+/* Phones: the vote is exactly one screen. The card grows or shrinks to fit, the buttons sit
+   just above the browser's bottom bar, and the rest of the hero starts below the fold. */
+@media (max-width: 899px) {
+  .hero {
+    display: block;
+    padding-top: 0;
+  }
+  .hero__first {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero__first.is-voting {
+    height: calc(100vh - var(--header-h));
+    height: calc(100svh - var(--header-h));
+    min-height: 480px;
+    padding: 4px 0 14px;
+  }
+  .hero__copy {
+    flex: 0 0 auto;
+    margin-bottom: 12px;
+  }
+  .kicker {
+    margin-bottom: 6px;
+  }
+  .hero__title {
+    max-width: none;
+    font-size: clamp(28px, 7.9vw, 46px);
+  }
+  .vote {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .stage--deck {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+  }
+  .deck {
+    flex: 1 1 auto;
+    min-height: 250px;
+    max-height: 640px; /* tablets: don't stretch the card into a tall strip */
+  }
+  .deck::before {
+    display: none;
+  }
+  .deck-actions {
+    margin-top: 12px;
+  }
+  .deck-actions .btn {
+    height: 52px;
+  }
+  /* iOS Safari's floating toolbar shows the page underneath it: start the next block below
+     the largest viewport so nothing peeks in under the first screen. */
+  .hero__more {
+    margin-top: 40px;
+    margin-top: calc(100lvh - 100svh + 40px);
+  }
+  .fav-pill {
+    height: 36px;
+    min-width: 56px;
+    padding: 0 12px;
+  }
+  .toast {
+    top: calc(var(--header-h) + 8px);
+    bottom: auto;
+    max-width: calc(100vw - 32px);
+  }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   *,
