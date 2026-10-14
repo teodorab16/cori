@@ -1,0 +1,15 @@
+---
+import { BRAND } from '../config';
+import Heart from './Heart.astro';
+
+interface Props {
+  size?: 'sm' | 'md' | 'lg';
+  animated?: boolean;
+}
+const { size = 'md', animated = false } = Astro.props;
+// The last letter must be an "i": its dot is replaced by the heart.
+const stem = BRAND.name.slice(0, -1);
+---
+<span class={`wordmark wordmark--${size}`} role="img" aria-label={BRAND.name} data-wordmark={animated ? 'animated' : undefined}>
+  <span aria-hidden="true" class="wordmark__letters">{stem}<span class="wordmark__i">ı<span class="wordmark__dot"><Heart class="wordmark__heart" /></span></span></span>
+</span>

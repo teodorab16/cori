@@ -1,0 +1,57 @@
+---
+import type { Sketch } from '../data/designs';
+
+interface Props {
+  sketch: Sketch;
+  view: 'front' | 'back';
+  uid: string;
+  label: string;
+}
+const { sketch, view, uid, label } = Astro.props;
+const { kind, base, ink, binding, mesh, cord } = sketch;
+const pid = `pat-${uid}-${view}`;
+const fill = `url(#${pid})`;
+---
+<svg class="vest-sketch" viewBox="0 0 300 320" role="img" aria-label={label}>
+  <defs>
+    {kind === 'solid' && (
+      <pattern id={pid} width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill={base} /></pattern>
+    )}
+    {kind === 'stripes' && (
+      <pattern id={pid} width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill={base} /><rect width="8" height="18" fill={ink} /></pattern>
+    )}
+    {kind === 'dots' && (
+      <pattern id={pid} width="26" height="26" patternUnits="userSpaceOnUse"><rect width="26" height="26" fill={base} /><circle cx="7" cy="7" r="3.2" fill={ink} /><circle cx="20" cy="20" r="3.2" fill={ink} /></pattern>
+    )}
+    {kind === 'check' && (
+      <pattern id={pid} width="24" height="24" patternUnits="userSpaceOnUse"><rect width="24" height="24" fill={base} /><rect width="12" height="24" fill={ink} fill-opacity="0.45" /><rect width="24" height="12" fill={ink} fill-opacity="0.45" /></pattern>
+    )}
+    {kind === 'breton' && (
+      <pattern id={pid} width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill={base} /><rect width="16" height="6" fill={ink} /></pattern>
+    )}
+  </defs>
+
+  {view === 'front' ? (
+    <g>
+      <path d="M96 22 Q150 74 204 22 L214 298 Q150 314 86 298 Z" fill={mesh} />
+      <path d="M96 22 Q150 74 204 22" fill="none" stroke={binding} stroke-width="7" stroke-linecap="round" />
+      <circle cx="150" cy="44" r="6" fill="none" stroke="#161514" stroke-width="2.5" />
+      <path d="M90 18 L124 18 C126 70 134 102 142 124 L144 294 Q102 304 58 278 L56 144 C80 130 90 82 90 18 Z" fill={fill} stroke={binding} stroke-width="7" stroke-linejoin="round" />
+      <path d="M210 18 L176 18 C174 70 166 102 158 124 L156 294 Q198 304 242 278 L244 144 C220 130 210 82 210 18 Z" fill={fill} stroke={binding} stroke-width="7" stroke-linejoin="round" />
+      <path d="M70 150 C92 140 116 138 136 142 M230 150 C208 140 184 138 164 142" fill="none" stroke={binding} stroke-width="4" stroke-linecap="round" />
+      <path d="M62 182 C88 176 112 174 138 176 L139 262 C112 272 86 268 62 256 M238 182 C212 176 188 174 162 176 L161 262 C188 272 214 268 238 256" fill="none" stroke={binding} stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M122 190 L122 250 M178 190 L178 250" fill="none" stroke={binding} stroke-width="2.5" stroke-dasharray="3 3" />
+      <path d="M146 200 L154 240 M154 200 L146 240" fill="none" stroke={cord} stroke-width="2.5" stroke-linecap="round" />
+      <g fill="#161514"><rect x="134" y="196" width="11" height="8" rx="2" /><rect x="155" y="196" width="11" height="8" rx="2" /><rect x="134" y="236" width="11" height="8" rx="2" /><rect x="155" y="236" width="11" height="8" rx="2" /></g>
+    </g>
+  ) : (
+    <g>
+      <path d="M84 18 L124 18 Q150 42 176 18 L216 18 C214 80 226 124 246 140 L244 282 Q150 316 56 282 L54 140 C74 124 86 80 84 18 Z" fill={fill} stroke={binding} stroke-width="7" stroke-linejoin="round" />
+      <circle cx="150" cy="46" r="6" fill="none" stroke="#161514" stroke-width="2.5" />
+      <path d="M86 122 Q150 108 214 122" fill="none" stroke={binding} stroke-width="5" stroke-linecap="round" />
+      <path d="M86 122 Q150 108 214 122" fill="none" stroke="#161514" stroke-width="1.5" stroke-dasharray="2 3" />
+      <path d="M86 122 L84 262 Q150 284 216 262 L214 122" fill="none" stroke={binding} stroke-width="4" stroke-linejoin="round" />
+      <path d="M58 178 L74 196 M74 178 L58 196 M58 214 L74 232 M74 214 L58 232 M242 178 L226 196 M226 178 L242 196 M242 214 L226 232 M226 214 L242 232" fill="none" stroke={cord} stroke-width="2.5" stroke-linecap="round" />
+    </g>
+  )}
+</svg>

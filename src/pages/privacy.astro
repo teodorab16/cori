@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import Wordmark from '../components/Wordmark.astro';
+import { BRAND } from '../config';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+// TODO(founder + Teo): fill every [bracket] before the site is shared. Draft only, not legal advice.
+---
+<Base title={`Privacy notice · ${BRAND.name}`}>
+  <header class="site-header">
+    <a href={base} class="site-header__brand"><Wordmark size="sm" /></a>
+  </header>
+  <main class="prose">
+    <p class="kicker mono">Draft · last updated [date]</p>
+    <h1>Privacy notice</h1>
+    <p>{BRAND.name} is a pre-launch project run by [founder’s full name], trading as {BRAND.name}, [business address]. Contact: <a href={`mailto:${BRAND.email}`}>{BRAND.email}</a>.</p>
+
+    <h2>What we collect and why</h2>
+    <ul>
+      <li><strong>Your email, size and favourite designs</strong>, when you save your picks: to email you once when your favourite launches, and to work out which designs and sizes to make. Lawful basis: your consent.</li>
+      <li><strong>The newsletter</strong>, only if you tick the box: occasional emails about new designs and run-club meet-ups. Lawful basis: your consent.</li>
+      <li><strong>How the vote is used</strong>: which designs are shown, liked or passed, in what order, and roughly where visitors come from (for example “instagram”). This is counted without cookies and never linked to your email in our statistics. You can switch it off with “Don’t count my clicks” in the footer.</li>
+    </ul>
+
+    <h2>Who helps us</h2>
+    <p>[Email tool, e.g. MailerLite (EU)], [database, e.g. Supabase (London)], GitHub Pages (hosting; GitHub logs visitor IP addresses for security). [Technical partner’s role and agreement.]</p>
+
+    <h2>How long we keep it</h2>
+    <p>Until you unsubscribe or ask us to delete it. Sign-ups that are never confirmed are deleted after 30 days. We review the list 12 months after launch.</p>
+
+    <h2>Your rights</h2>
+    <p>You can ask to see, correct or delete your data, or withdraw consent, at any time: email us or use the unsubscribe link in any email. To complain, [complaint form or email]; we reply within 30 days. You can also complain to the Information Commissioner’s Office (ico.org.uk).</p>
+  </main>
+</Base>

@@ -1,0 +1,212 @@
+---
+import Base from '../layouts/Base.astro';
+import Wordmark from '../components/Wordmark.astro';
+import DesignCard from '../components/DesignCard.astro';
+import Heart from '../components/Heart.astro';
+import RouteDoodle from '../components/RouteDoodle.astro';
+import Marquee from '../components/Marquee.astro';
+import HowScene from '../components/HowScene.astro';
+import PackIt from '../components/PackIt.astro';
+import { designs } from '../data/designs';
+import { BRAND, PRICE, SIZES, UK_SIZES_OUTSIDE, CATALOG, CONSENT } from '../config';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const surveyAnswers = ['Buy it on launch day', 'Wait for reviews', 'Only buy it on offer', `${PRICE.label} is too much for me`];
+const faqs = [
+  { q: 'Is this a pre-order?', a: 'No. Nothing is for sale and nobody pays anything. You’re helping us decide which designs to make first.' },
+  { q: 'What will it cost?', a: `We’re planning a launch price of ${PRICE.label}.` },
+  { q: 'Why only two sizes?', a: 'Every vest has bungee lacing at the front and sides, so two sizes cover UK 6 to 20. If neither fits you, tell us in the form: that’s how we’ll know to add more.' },
+  { q: 'Are these real photos?', a: 'Not yet. They’re concept renders and sketches of designs in development. Real samples come after the vote, so colours and details may change.' },
+  { q: 'What happens to my email?', a: 'We email you once when your favourite design launches. The newsletter only if you tick the box. Unsubscribe anytime; details are in the privacy notice.' },
+  { q: `Who’s behind ${BRAND.name}?`, a: `[Founder’s story: two or three lines about who she is and why she started ${BRAND.name}.]` },
+];
+---
+<Base>
+  <a class="skip-link" href="#vote">Skip to the vote</a>
+
+  <header class="site-header">
+    <a href={base} class="site-header__brand"><Wordmark size="sm" animated /></a>
+    <span class="fav-pill" data-fav-pill role="status" aria-label="Designs you love: 0"><Heart class="fav-pill__heart" /><span data-fav-count aria-hidden="true">0</span></span>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="vote" aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <p class="kicker mono">{BRAND.collection} · help us choose</p>
+        <h1 id="hero-title" class="hero__title">{BRAND.tagline}</h1>
+      </div>
+
+      <div class="hero__more">
+        <RouteDoodle />
+        <p class="hero__sub">Cute, properly useful running vests for women. We’ve designed a few, and we’ll only make the ones you love.</p>
+        <p class="hero__meta mono">{PRICE.label} launch price · 2 sizes · nothing to pay</p>
+      </div>
+
+      <div class="vote" data-vote data-catalog={CATALOG.version} data-show-sketches={String(CATALOG.showSketches)} data-base={base}>
+        <p class="friend-note" data-friend-note hidden>A friend sent you this. Swipe to pick your favourite, then see if you match.</p>
+
+        <div class="stage stage--deck" data-stage="deck">
+          <div class="deck" data-deck tabindex="0" aria-label="Designs to vote on. Use the left and right arrow keys, or the buttons below.">
+            {designs.map((design) => <DesignCard design={design} />)}
+          </div>
+          <div class="deck-actions">
+            <button type="button" class="btn btn--ghost" data-vote-btn="pass">Not for me</button>
+            <button type="button" class="btn btn--love" data-vote-btn="love"><Heart class="btn__heart" />I’d run in that</button>
+          </div>
+          <p class="deck-hint mono" aria-hidden="true">Keyboard: <kbd>←</kbd> not for me · <kbd>→</kbd> I’d run in that · or drag the card</p>
+          <ol class="progress" data-progress aria-label="Your progress"></ol>
+        </div>
+
+        <div class="stage panel" data-stage="pick" hidden>
+          <h2 class="stage__title" tabindex="-1">If we could only make one…</h2>
+          <p class="stage__sub">Which of your favourites would you wear first?</p>
+          <fieldset class="pick-grid" data-pick-grid>
+            <legend class="sr-only">Your favourite design</legend>
+          </fieldset>
+          <button type="button" class="btn btn--ink btn--wide" data-pick-continue disabled>That’s the one</button>
+        </div>
+
+        <div class="stage panel" data-stage="form" hidden>
+          <h2 class="stage__title" tabindex="-1" data-form-title>Get first dibs.</h2>
+          <p class="stage__sub" data-form-sub>We’ll email you when your favourite is ready to order. Nothing to pay; this isn’t a pre-order.</p>
+          <div class="form-fav" data-form-fav hidden></div>
+          <form class="signup" data-signup novalidate>
+            <div class="field">
+              <label for="email">Your email</label>
+              <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="email-error" />
+              <p class="field__hint" data-email-suggest hidden>Did you mean <button type="button" class="link-btn" data-suggest-apply></button>?</p>
+              <p class="field__error" id="email-error" data-error="email" hidden></p>
+            </div>
+            <fieldset class="field" aria-describedby="size-error">
+              <legend>Your size</legend>
+              <div class="size-tiles">
+                {SIZES.map((s) => (
+                  <label class:list={['size-tile', { 'size-tile--wide': !s.uk }]}>
+                    <input type="radio" name="size" value={s.id} />
+                    <span class="size-tile__label">{s.label}</span>
+                    {s.uk && <span class="size-tile__meta">{s.uk} · {s.bust}</span>}
+                  </label>
+                ))}
+              </div>
+              <div class="field field--sub" data-outside hidden>
+                <label for="uk-size">Which UK size are you? <span class="optional">(optional)</span></label>
+                <select id="uk-size" name="ukSize">
+                  <option value="">Prefer not to say</option>
+                  {UK_SIZES_OUTSIDE.map((u) => <option value={u}>{u}</option>)}
+                </select>
+              </div>
+              <p class="field__hint">Between sizes? Go up: the bungee lacing pulls it in.</p>
+              <p class="field__error" id="size-error" data-error="size" hidden></p>
+            </fieldset>
+            <label class="check">
+              <input type="checkbox" name="newsletter" value="yes" />
+              <span>{CONSENT.newsletter}</span>
+            </label>
+            <div class="hp" aria-hidden="true">
+              <label>Leave this empty <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+            </div>
+            <button type="submit" class="btn btn--love btn--wide" data-submit>Save my picks</button>
+            <p class="fine">{CONSENT.launchEmail} The newsletter only if you ticked the box. <a href={`${base}privacy/`}>Privacy notice</a>.</p>
+            <p class="field__error" data-error="form" role="alert" hidden></p>
+          </form>
+        </div>
+
+        <div class="stage panel" data-stage="done" hidden>
+          <div class="done__badge" aria-hidden="true"><Heart /></div>
+          <h2 class="stage__title" tabindex="-1" data-done-title>You’re on the list.</h2>
+          <p class="stage__sub" data-done-sub>Check your inbox to confirm. We’ll tell you first when your favourite is made.</p>
+          <p class="stage__sub match" data-match hidden></p>
+          <div class="share">
+            <button type="button" class="btn btn--ink" data-share>Send it to your run club</button>
+            <button type="button" class="btn btn--ghost" data-copy>Copy link</button>
+          </div>
+          <div class="survey" data-survey>
+            <p class="survey__q">Last one, promise: at {PRICE.label}, you’d…</p>
+            <div class="chips">
+              {surveyAnswers.map((a) => <button type="button" class="chip" aria-pressed="false" data-answer={a}>{a}</button>)}
+            </div>
+            <p class="survey__thanks" data-survey-thanks hidden>Thank you. That’s genuinely useful.</p>
+          </div>
+        </div>
+
+        <div class="toast" data-toast hidden>
+          <span data-toast-text></span>
+          <button type="button" class="toast__undo" data-undo>Undo</button>
+        </div>
+        <p class="sr-only" aria-live="polite" data-live></p>
+        <noscript><p class="panel">The vote needs JavaScript. You can also email us at {BRAND.email} with the design you like.</p></noscript>
+      </div>
+    </section>
+
+    <Marquee />
+
+    <section class="section" aria-labelledby="how-title">
+      <p class="kicker mono">How it works</p>
+      <h2 id="how-title" class="section__title">You vote. We make the winners.</h2>
+      <ol class="steps">
+        <li class="step">
+          <HowScene scene="deck" />
+          <span class="step__no mono">01</span>
+          <h3>Go through the collection</h3>
+          <p>Every design, in a different order for everyone. Love the ones you’d actually run in.</p>
+        </li>
+        <li class="step">
+          <HowScene scene="bars" />
+          <span class="step__no mono">02</span>
+          <h3>We make the most loved</h3>
+          <p>Only the designs you pick get made. Nothing nobody wanted ends up in a factory.</p>
+        </li>
+        <li class="step">
+          <HowScene scene="notify" />
+          <span class="step__no mono">03</span>
+          <h3>You hear first</h3>
+          <p>When your favourite is ready, you’re the first to know, at the {PRICE.label} launch price. No payment now.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section" aria-labelledby="kit-title">
+      <p class="kicker mono">In every design</p>
+      <h2 id="kit-title" class="section__title">Cute outside. Properly useful inside.</h2>
+      <PackIt />
+      <p class="fine">Bungee lacing front and sides · XS–M and L–XXL · concept details, the final product may change after samples.</p>
+    </section>
+
+    <section class="section" aria-labelledby="faq-title">
+      <p class="kicker mono">Questions</p>
+      <h2 id="faq-title" class="section__title">Good to know</h2>
+      <div class="faq">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <Wordmark size="lg" />
+      <p class="site-footer__line">From <em>correre</em>: to run. Dreamt up in {BRAND.city}. Made when you say so.</p>
+      <nav class="site-footer__links" aria-label="Footer">
+        <a href={`${base}privacy/`}>Privacy</a>
+        <a href={`mailto:${BRAND.email}`}>Contact</a>
+        <button type="button" class="link-btn" data-optout aria-pressed="false">Don’t count my clicks</button>
+      </nav>
+      <p class="site-footer__fine">Images are concept renders and sketches of designs in development. Nothing on this site is for sale.</p>
+    </div>
+  </footer>
+
+  {import.meta.env.DEV && (
+    <nav class="dev-accent" aria-label="Accent options (development only)">
+      {['chameleon', 'ink', 'cobalt'].map((a) => <a href={`?accent=${a}`} data-accent-link={a}>{a}</a>)}
+    </nav>
+  )}
+
+  <script>
+    import { initApp } from '../scripts/app';
+    initApp();
+  </script>
+</Base>

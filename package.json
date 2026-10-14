@@ -1,0 +1,24 @@
+{
+  "name": "cori-site",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "images": "node scripts/make-images.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/familjen-grotesk": "5.3.0",
+    "@fontsource/dm-mono": "5.3.0",
+    "astro": "7.3.6",
+    "canvas-confetti": "1.9.4",
+    "gsap": "3.15.0",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "@fontsource/familjen-grotesk": "^5.3.0",
+    "opentype.js": "^2.0.0"
+  }
+}

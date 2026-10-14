@@ -1,0 +1,72 @@
+---
+import { Picture } from 'astro:assets';
+import type { Design } from '../data/designs';
+import { PRICE } from '../config';
+import VestSketch from './VestSketch.astro';
+import Heart from './Heart.astro';
+
+interface Props {
+  design: Design;
+}
+const { design } = Astro.props;
+const isSketch = design.status === 'sketch';
+const shots = isSketch ? ['front', 'back'] : (design.images ?? []).map((img) => img.shot);
+---
+<article
+  class="card"
+  data-slug={design.slug}
+  data-status={design.status}
+  data-name={design.name}
+  data-tint={design.tint}
+  data-swatch={design.swatch}
+  data-heart={design.heart}
+  data-shots={shots.length}
+  style={`--panel: ${design.panel};`}
+  aria-label={`Design ${design.no}: ${design.name}`}
+>
+  <div class="card__media">
+    <div class="card__bars" aria-hidden="true">
+      {shots.map((_, i) => <span class:list={['card__bar', { 'is-active': i === 0 }]}></span>)}
+    </div>
+    <div class="card__shots">
+      {isSketch && design.sketch ? (
+        <>
+          <div class="card__shot is-active" data-shot="0"><VestSketch sketch={design.sketch} view="front" uid={design.slug} label={`Sketch of the ${design.name} design, front`} /></div>
+          <div class="card__shot" data-shot="1"><VestSketch sketch={design.sketch} view="back" uid={design.slug} label={`Sketch of the ${design.name} design, back`} /></div>
+        </>
+      ) : (
+        (design.images ?? []).map((img, i) => (
+          <div class:list={['card__shot', { 'is-active': i === 0 }]} data-shot={i}>
+            <Picture
+              src={img.src}
+              alt={img.alt}
+              formats={['avif', 'webp']}
+              widths={[480, 800, 1200]}
+              sizes="(min-width: 900px) 440px, 92vw"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              class={`card__img card__img--${img.shot}`}
+            />
+          </div>
+        ))
+      )}
+    </div>
+    <span class="card__chip mono">{isSketch ? 'Placeholder sketch' : 'Concept render'}</span>
+    <span class="card__count mono" aria-hidden="true"><span data-shot-label>1</span> / {shots.length}</span>
+    <span class="stamp stamp--love" aria-hidden="true"><Heart class="stamp__heart" />I’d run in that</span>
+    <span class="stamp stamp--pass" aria-hidden="true">Not for me</span>
+    <button type="button" class="card__nav card__nav--prev sr-only-focusable" data-nav="-1">Previous photo</button>
+    <button type="button" class="card__nav card__nav--next sr-only-focusable" data-nav="1">Next photo</button>
+  </div>
+  <div class="card__info">
+    <div class="card__title">
+      <span class="mono card__no">No. {design.no}</span>
+      <h2 class="card__name">{design.name}</h2>
+      <p class="card__note">{design.note}</p>
+    </div>
+    <div class="card__price">
+      <b>{PRICE.label}</b>
+      <span class="mono">{PRICE.note}</span>
+    </div>
+  </div>
+</article>

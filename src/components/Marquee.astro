@@ -1,0 +1,20 @@
+---
+import Icon from './Icon.astro';
+import { designs } from '../data/designs';
+
+// The hearts cycle through the collection's own colours.
+const colours = designs.map((d) => d.swatch);
+const words = ['run', 'brunch', 'repeat', 'london', 'two sizes', 'nothing to pay'];
+// Rendered twice so the loop is seamless.
+const loop = [...words, ...words];
+---
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track" data-marquee>
+    {loop.map((w, i) => (
+      <span class="marquee__item" style={`--c: ${colours[i % colours.length]}; --d: ${(i % 6) * 0.22}s`}>
+        <span>{w}</span>
+        <Icon name="heart" class="marquee__heart" />
+      </span>
+    ))}
+  </div>
+</div>

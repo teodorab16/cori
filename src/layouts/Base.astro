@@ -1,0 +1,59 @@
+---
+import '@fontsource-variable/familjen-grotesk';
+import '@fontsource/dm-mono/400.css';
+import '@fontsource/dm-mono/500.css';
+import '../styles/global.css';
+import { BRAND, THEME } from '../config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+const {
+  title = `${BRAND.name} · ${BRAND.tagline}`,
+  description = `Cute, properly useful running vests for women. Help us choose which designs we make first. Nothing to pay.`,
+  ogImage = 'og.jpg',
+} = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const canonical = new URL(Astro.url.pathname, Astro.site);
+// Link previews (WhatsApp, iMessage, Instagram, Slack) need an absolute https URL.
+const ogImageUrl = new URL(`${base}${ogImage}`, Astro.site);
+---
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content="noindex, nofollow" /><!-- pre-launch test: keep out of search engines -->
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    <meta name="theme-color" content="#F5F3EE" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={BRAND.name} />
+    <meta property="og:locale" content="en_GB" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:secure_url" content={ogImageUrl} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${BRAND.name}: ${BRAND.tagline}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <script is:inline define:vars={{ defaultAccent: THEME.accent }}>
+      const asked = new URLSearchParams(location.search).get('accent');
+      document.documentElement.dataset.accent = ['chameleon', 'ink', 'cobalt'].includes(asked) ? asked : defaultAccent;
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

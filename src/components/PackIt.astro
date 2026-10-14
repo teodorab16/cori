@@ -1,0 +1,39 @@
+---
+// "Pack it": everyday things fly into a neutral line drawing of a vest. Decorative only,
+// so it never shows a real design and can't bias the vote.
+import Icon from './Icon.astro';
+
+const items = [
+  { id: 'gel', icon: 'gel', label: 'Gels & lip balm', x: 236, y: 166 },
+  { id: 'flask', icon: 'flask', label: 'A soft flask', x: 234, y: 236 },
+  { id: 'sunnies', icon: 'sunnies', label: 'Sunnies', x: 366, y: 170 },
+  { id: 'phone', icon: 'phone', label: 'Your phone', x: 372, y: 232 },
+  { id: 'keys', icon: 'keys', label: 'Keys, clipped on', x: 302, y: 66 },
+  { id: 'layer', icon: 'layer', label: 'A light layer, zipped at the back', x: 470, y: 96 },
+] as const;
+---
+<div class="pack" data-pack>
+  <svg class="pack__svg" viewBox="80 20 480 360" fill="none" aria-hidden="true">
+    <g transform="translate(170 50)" class="pack__vest">
+      <path d="M96 22 Q150 74 204 22 L214 298 Q150 314 86 298 Z" class="pack__mesh" />
+      <circle cx="150" cy="44" r="6" class="pack__line" />
+      <path d="M90 18 L124 18 C126 70 134 102 142 124 L144 294 Q102 304 58 278 L56 144 C80 130 90 82 90 18 Z" class="pack__panel" />
+      <path d="M210 18 L176 18 C174 70 166 102 158 124 L156 294 Q198 304 242 278 L244 144 C220 130 210 82 210 18 Z" class="pack__panel" />
+      <path d="M70 150 C92 140 116 138 136 142 M230 150 C208 140 184 138 164 142" class="pack__line" />
+      <path d="M62 182 C88 176 112 174 138 176 L139 262 C112 272 86 268 62 256 M238 182 C212 176 188 174 162 176 L161 262 C188 272 214 268 238 256" class="pack__line" />
+      <path d="M146 200 L154 240 M154 200 L146 240" class="pack__cord" data-pack-cord />
+    </g>
+    {items.map((item) => (
+      <g data-pack-item={item.id} transform={`translate(${item.x} ${item.y})`}>
+        <circle cx="21" cy="21" r="27" class="pack__halo" />
+        <g transform="translate(3 3)" class="pack__item"><Icon name={item.icon} size={36} /></g>
+      </g>
+    ))}
+  </svg>
+  <ol class="pack__list">
+    {items.map((item) => (
+      <li data-pack-label={item.id}><Icon name={item.icon} class="pack__list-icon" /><span>{item.label}</span></li>
+    ))}
+  </ol>
+  <button type="button" class="pack__replay link-btn" data-pack-replay hidden>Pack it again</button>
+</div>
