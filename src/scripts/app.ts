@@ -137,6 +137,8 @@ class VoteFlow {
   private shownAt = 0;
   private formShownAt = 0;
   private busy = false;
+  private submitLabel = 'Save my picks';
+  private consentText: string = CONSENT.launchEmail;
   private devMode = false;
   private drag: Draggable | undefined;
   private viewTimer: number | undefined;
@@ -565,6 +567,10 @@ class VoteFlow {
 
   private showForm(): void {
     const fav = q('[data-form-fav]', this.root);
+    if (this.top && this.lovedSlugs().length === 1) {
+      this.submitLabel = 'Save my pick';
+      q('[data-submit]', this.root).textContent = this.submitLabel;
+    }
     if (this.top) {
       const card = this.cards.get(this.top) as HTMLElement;
       const thumb = document.createElement('span');
@@ -584,6 +590,11 @@ class VoteFlow {
       q('[data-form-title]', this.root).textContent = 'Nothing caught your eye?';
       q('[data-form-sub]', this.root).textContent =
         'That’s useful too. Leave your email and we’ll show you the next designs first. Nothing to pay.';
+      // No picks to save: the button, the promise and the stored consent wording all change.
+      this.submitLabel = 'Keep me posted';
+      this.consentText = CONSENT.nextDesignsEmail;
+      q('[data-submit]', this.root).textContent = this.submitLabel;
+      q('[data-consent-text]', this.root).textContent = this.consentText;
     }
     this.formShownAt = performance.now();
     this.showStage('form');
@@ -695,7 +706,7 @@ class VoteFlow {
       order: this.order,
       session: sessionId(),
       catalog: this.catalog,
-      consent: { version: CONSENT.version, launchEmail: CONSENT.launchEmail, newsletter: newsletter ? CONSENT.newsletter : null },
+      consent: { version: CONSENT.version, launchEmail: this.consentText, newsletter: newsletter ? CONSENT.newsletter : null },
       attribution: attribution(),
       submittedAt: new Date().toISOString(),
       flags: { fast: performance.now() - this.formShownAt < 2500 },
@@ -712,7 +723,7 @@ class VoteFlow {
     } catch {
       this.setError(form, 'form', 'We couldn’t save that just now. Your picks are kept on this phone, so please try again.');
       button.disabled = false;
-      button.textContent = 'Save my picks';
+      button.textContent = this.submitLabel;
       form.removeAttribute('aria-busy');
     }
   }
@@ -734,6 +745,9 @@ class VoteFlow {
   private showDone(): void {
     const name = this.nameOf(this.top);
     q('[data-done-title]', this.root).textContent = name ? `You’re on the list for ${name}.` : 'You’re on the list.';
+    if (!this.top) {
+      q('[data-done-sub]', this.root).textContent = 'Check your inbox to confirm. We’ll show you the next designs first.';
+    }
     if (this.devMode) {
       q('[data-done-sub]', this.root).textContent = 'Saved on this device only: development mode, so no email is sent yet.';
     }

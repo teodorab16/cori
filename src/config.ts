@@ -40,5 +40,7 @@ export const ENDPOINTS = {
 export const CONSENT = {
   version: '2026-10-14.1',
   launchEmail: `We'll email you once when your favourite design launches.`,
+  // Used instead when someone liked none of the designs: there's no favourite to launch.
+  nextDesignsEmail: `We'll email you when new designs are ready to see.`,
   newsletter: `Also send me the ${BRAND.name} newsletter: new designs, run-club meet-ups, early news. Unsubscribe anytime.`,
 };
