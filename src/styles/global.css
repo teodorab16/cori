@@ -22,6 +22,7 @@
   --radius: 26px;
   --gutter: 20px;
   --deck-w: 440px;
+  --header-h: 60px;
 }
 
 html[data-accent='ink'] {
@@ -158,10 +159,12 @@ a {
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  padding: 14px var(--gutter) 10px;
+  gap: 12px;
+  height: var(--header-h);
+  padding: 0 var(--gutter);
   background: color-mix(in srgb, var(--tint) 88%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -187,6 +190,21 @@ a {
   width: 16px;
   height: 16px;
   color: var(--heart);
+}
+
+/* Progress dots live in the header, between the wordmark and the heart counter. */
+.site-header .progress {
+  margin: 0;
+  gap: 7px;
+}
+.site-header .progress__dot {
+  width: 9px;
+  height: 9px;
+}
+.site-header .progress__dot.is-current {
+  width: 13px;
+  height: 13px;
+  box-shadow: 0 0 0 2px var(--tint), 0 0 0 3.5px var(--ink);
 }
 
 /* ---------- Hero ---------- */
@@ -238,7 +256,77 @@ a {
   color: var(--ink-3);
 }
 
+/* Phones: the vote is exactly one screen. The card grows or shrinks to fit, the buttons sit
+   just above the browser's bottom bar, and the rest of the hero starts below the fold. */
+@media (max-width: 899px) {
+  .hero {
+    display: block;
+    padding-top: 0;
+  }
+  .hero__first {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero__first:has([data-stage='deck']:not([hidden])) {
+    height: calc(100vh - var(--header-h));
+    height: calc(100svh - var(--header-h));
+    min-height: 480px;
+    padding: 4px 0 14px;
+  }
+  .hero__copy {
+    flex: 0 0 auto;
+    margin-bottom: 12px;
+  }
+  .kicker {
+    margin-bottom: 6px;
+  }
+  .hero__title {
+    max-width: none;
+    font-size: clamp(28px, 7.9vw, 46px);
+  }
+  .vote {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .stage--deck {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .deck {
+    flex: 1 1 auto;
+    min-height: 250px;
+  }
+  .deck::before {
+    display: none;
+  }
+  .deck-actions {
+    margin-top: 12px;
+  }
+  .deck-actions .btn {
+    height: 52px;
+  }
+  .hero__more {
+    margin-top: 40px;
+  }
+  .fav-pill {
+    height: 36px;
+    min-width: 56px;
+    padding: 0 12px;
+  }
+  .toast {
+    top: calc(var(--header-h) + 8px);
+    bottom: auto;
+  }
+}
+
 @media (min-width: 900px) {
+  .hero__first {
+    display: contents;
+  }
   .hero {
     grid-template-columns: minmax(0, 1fr) var(--deck-w);
     grid-template-areas: 'copy vote' 'more vote';

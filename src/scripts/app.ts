@@ -420,7 +420,7 @@ class VoteFlow {
   }
 
   private buildProgress(): void {
-    const list = q('[data-progress]', this.root);
+    const list = q('[data-progress]');
     list.replaceChildren(
       ...this.order.map((slug) => {
         const li = document.createElement('li');
@@ -433,7 +433,7 @@ class VoteFlow {
   }
 
   private updateProgress(): void {
-    for (const li of qa('.progress__dot', this.root)) {
+    for (const li of qa('.progress__dot')) {
       const slug = li.dataset.slug as string;
       const i = this.order.indexOf(slug);
       const decision = this.decisions.get(slug);

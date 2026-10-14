@@ -26,21 +26,19 @@ const faqs = [
 
   <header class="site-header">
     <a href={base} class="site-header__brand"><Wordmark size="sm" animated /></a>
+    <ol class="progress" data-progress aria-label="Your progress"></ol>
     <span class="fav-pill" data-fav-pill role="status" aria-label="Designs you love: 0"><Heart class="fav-pill__heart" /><span data-fav-count aria-hidden="true">0</span></span>
   </header>
 
   <main id="main">
     <section class="hero" id="vote" aria-labelledby="hero-title">
+      <div class="hero__first">
       <div class="hero__copy">
         <p class="kicker mono">{BRAND.collection} · help us choose</p>
         <h1 id="hero-title" class="hero__title">{BRAND.tagline}</h1>
       </div>
 
-      <div class="hero__more">
-        <RouteDoodle />
-        <p class="hero__sub">Cute, properly useful running vests for women. We’ve designed a few, and we’ll only make the ones you love.</p>
-        <p class="hero__meta mono">{PRICE.label} launch price · 2 sizes · nothing to pay</p>
-      </div>
+
 
       <div class="vote" data-vote data-catalog={CATALOG.version} data-show-sketches={String(CATALOG.showSketches)} data-base={base}>
         <p class="friend-note" data-friend-note hidden>A friend sent you this. Swipe to pick your favourite, then see if you match.</p>
@@ -54,7 +52,6 @@ const faqs = [
             <button type="button" class="btn btn--love" data-vote-btn="love"><Heart class="btn__heart" />I’d run in that</button>
           </div>
           <p class="deck-hint mono" aria-hidden="true">Keyboard: <kbd>←</kbd> not for me · <kbd>→</kbd> I’d run in that · or drag the card</p>
-          <ol class="progress" data-progress aria-label="Your progress"></ol>
         </div>
 
         <div class="stage panel" data-stage="pick" hidden>
@@ -135,6 +132,13 @@ const faqs = [
         </div>
         <p class="sr-only" aria-live="polite" data-live></p>
         <noscript><p class="panel">The vote needs JavaScript. You can also email us at {BRAND.email} with the design you like.</p></noscript>
+      </div>
+      </div>
+
+      <div class="hero__more">
+        <RouteDoodle />
+        <p class="hero__sub">Cute, properly useful running vests for women. We’ve designed a few, and we’ll only make the ones you love.</p>
+        <p class="hero__meta mono">{PRICE.label} launch price · 2 sizes · nothing to pay</p>
       </div>
     </section>
 
