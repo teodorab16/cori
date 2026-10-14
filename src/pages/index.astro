@@ -44,7 +44,7 @@ const faqs = [
         <p class="friend-note" data-friend-note hidden>A friend sent you this. Swipe to pick your favourite, then see if you match.</p>
 
         <div class="stage stage--deck" data-stage="deck">
-          <div class="deck" data-deck tabindex="0" aria-label="Designs to vote on. Use the left and right arrow keys, or the buttons below.">
+          <div class="deck" data-deck tabindex="0" role="group" aria-roledescription="deck of designs" aria-label="Designs to vote on. Use the left and right arrow keys, or the buttons below.">
             {designs.map((design) => <DesignCard design={design} />)}
           </div>
           <div class="deck-actions">
@@ -100,7 +100,7 @@ const faqs = [
               <span>{CONSENT.newsletter}</span>
             </label>
             <div class="hp" aria-hidden="true">
-              <label>Leave this empty <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+              <label>Leave this empty <input type="text" name="cori_hp" tabindex="-1" autocomplete="off" /></label>
             </div>
             <button type="submit" class="btn btn--love btn--wide" data-submit>Save my picks</button>
             <p class="fine"><span data-consent-text>{CONSENT.launchEmail}</span> The newsletter only if you ticked the box. <a href={`${base}privacy/`}>Privacy notice</a>.</p>
@@ -116,17 +116,18 @@ const faqs = [
           <div class="share">
             <button type="button" class="btn btn--ink" data-share>Send it to your run club</button>
             <button type="button" class="btn btn--ghost" data-copy>Copy link</button>
+            <input class="copy-fallback" data-copy-fallback type="text" readonly aria-label="Link to share" hidden />
           </div>
           <div class="survey" data-survey>
             <p class="survey__q">Last one, promise: at {PRICE.label}, you’d…</p>
             <div class="chips">
               {surveyAnswers.map((a) => <button type="button" class="chip" aria-pressed="false" data-answer={a}>{a}</button>)}
             </div>
-            <p class="survey__thanks" data-survey-thanks hidden>Thank you. That’s genuinely useful.</p>
+            <p class="survey__thanks" data-survey-thanks tabindex="-1" hidden>Thank you. That’s genuinely useful.</p>
           </div>
         </div>
 
-        <div class="toast" data-toast hidden>
+        <div class="toast" data-toast role="status" hidden>
           <span data-toast-text></span>
           <button type="button" class="toast__undo" data-undo>Undo</button>
         </div>

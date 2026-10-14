@@ -45,7 +45,6 @@ html[data-accent='cobalt'] {
 html {
   background: var(--tint);
   -webkit-text-size-adjust: 100%;
-  overflow-x: hidden;
   overflow-x: clip;
 }
 
@@ -168,6 +167,7 @@ a {
   gap: 12px;
   height: var(--header-h);
   padding: 0 var(--gutter);
+  background: var(--tint);
   background: color-mix(in srgb, var(--tint) 88%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -789,7 +789,7 @@ a {
 .pick:has(input:checked) {
   box-shadow: 0 0 0 3px var(--accent);
 }
-.pick:has(input:checked) .pick__check {
+.pick input:checked ~ .pick__check {
   opacity: 1;
   transform: scale(1);
 }
@@ -939,6 +939,9 @@ a {
   font-weight: 400;
   color: var(--ink-3);
 }
+.size-tile input:checked + .size-tile__label::after {
+  content: ' ✓';
+}
 .size-tile:has(input:checked) {
   background: var(--ink);
   color: var(--paper);
@@ -1006,6 +1009,22 @@ a {
   display: grid;
   gap: 8px;
   margin: 4px 0 24px;
+}
+.copy-fallback {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: #fff;
+  font: 14px var(--mono);
+  color: var(--ink);
+}
+.copy-fallback[hidden] {
+  display: none;
+}
+.survey__thanks:focus {
+  outline: none;
 }
 .survey {
   padding-top: 18px;
@@ -1579,6 +1598,9 @@ a {
   .deck-actions .btn {
     height: 52px;
   }
+  .deck-hint {
+    display: none;
+  }
   /* iOS Safari's floating toolbar shows the page underneath it: start the next block below
      the largest viewport so nothing peeks in under the first screen. */
   .hero__more {
@@ -1597,6 +1619,41 @@ a {
   }
 }
 
+
+/* Desktop: size the card by the window height so the buttons stay on screen (after the base .deck rules). */
+@media (min-width: 900px) {
+  .deck {
+    height: clamp(320px, calc(100vh - 260px), 520px);
+    height: clamp(320px, calc(100svh - 260px), 520px);
+  }
+  .deck::before {
+    display: none;
+  }
+}
+
+/* Short screens (phones in landscape): keep the buttons on screen, drop the headline while voting. */
+@media (max-height: 520px) and (max-width: 899px) {
+  .hero__first.is-voting {
+    min-height: 0;
+  }
+  .hero__first.is-voting .hero__copy {
+    display: none;
+  }
+  .deck {
+    min-height: 160px;
+  }
+}
+@media (max-height: 520px) and (min-width: 900px) {
+  .hero {
+    padding-top: 12px;
+  }
+  .deck {
+    height: max(190px, calc(100svh - 170px));
+  }
+  .deck-hint {
+    display: none;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

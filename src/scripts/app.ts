@@ -138,6 +138,9 @@ class VoteFlow {
   private formShownAt = 0;
   private busy = false;
   private submitLabel = 'Save my picks';
+  private finishTimer: number | undefined;
+  private thumbCount = 0;
+  private readonly undone = new Set<string>();
   private consentText: string = CONSENT.launchEmail;
   private devMode = false;
   private drag: Draggable | undefined;
@@ -186,6 +189,7 @@ class VoteFlow {
       const card = this.cards.get(slug) as HTMLElement;
       const pos = i - this.idx;
       if (pos < 0) {
+        this.rescueFocus(card);
         card.setAttribute('aria-hidden', 'true');
         card.toggleAttribute('inert', true);
         return;
@@ -193,6 +197,7 @@ class VoteFlow {
       delete card.dataset.out;
       const isTop = pos === 0;
       card.style.zIndex = String(100 - pos);
+      if (!isTop) this.rescueFocus(card);
       card.toggleAttribute('inert', !isTop);
       card.setAttribute('aria-hidden', String(!isTop));
       const depth = Math.min(pos, 2);
@@ -208,7 +213,12 @@ class VoteFlow {
     });
   }
 
-  private activateTop(): void {
+  // A card that becomes inert must not take keyboard focus down with it.
+  private rescueFocus(card: HTMLElement): void {
+    if (card.contains(document.activeElement)) this.deck.focus({ preventScroll: true });
+  }
+
+  private activateTop(announce = true): void {
     this.drag?.kill();
     this.drag = undefined;
     window.clearTimeout(this.viewTimer);
@@ -218,7 +228,7 @@ class VoteFlow {
     const card = this.cards.get(slug) as HTMLElement;
     this.setTint(card.dataset.tint || PAPER, card.dataset.heart);
     this.shownAt = performance.now();
-    this.announce(`Design ${this.idx + 1} of ${this.order.length}: ${card.dataset.name}.`);
+    if (announce) this.announce(this.positionText());
     this.whenLoaded(card, () => {
       this.viewTimer = window.setTimeout(() => {
         if (this.order[this.idx] === slug && !this.viewed.has(slug)) {
@@ -228,6 +238,11 @@ class VoteFlow {
       }, 800);
     });
     this.makeDraggable(card);
+  }
+
+  private positionText(): string {
+    const name = this.cards.get(this.order[this.idx])?.dataset.name;
+    return `Design ${this.idx + 1} of ${this.order.length}: ${name}.`;
   }
 
   private whenLoaded(card: HTMLElement, done: () => void): void {
@@ -270,10 +285,10 @@ class VoteFlow {
       onRelease(this: Draggable) {
         const w = card.offsetWidth;
         const x = this.x;
+        if (performance.now() - lastT > 80) vx = 0; // the finger stopped before letting go: no flick
         const flick = Math.abs(vx) > 700 && Math.sign(vx) === Math.sign(x) && Math.abs(x) > 24;
-        if (Math.abs(x) > w * 0.28 || flick) {
-          flow.vote(x > 0 ? 'love' : 'pass', 'swipe');
-        } else {
+        const voted = (Math.abs(x) > w * 0.28 || flick) && flow.vote(x > 0 ? 'love' : 'pass', 'swipe');
+        if (!voted) {
           gsap.to(card, { x: 0, rotation: 0, duration: 0.55, ease: 'elastic.out(1, 0.6)' });
           gsap.to([love, pass], { opacity: 0, duration: 0.2 });
         }
@@ -310,9 +325,9 @@ class VoteFlow {
     }
   }
 
-  vote(vote: Vote, method: Method): void {
+  vote(vote: Vote, method: Method): boolean {
     const slug = this.order[this.idx];
-    if (this.busy || !slug) return;
+    if (this.busy || !slug) return false;
     this.busy = true;
     window.setTimeout(() => (this.busy = false), 220);
 
@@ -326,7 +341,14 @@ class VoteFlow {
     }
     this.decisions.set(slug, vote);
     this.history.push({ slug, vote });
-    track('vote', { design: slug, pos: this.idx + 1, value: vote, method, ms: Math.round(performance.now() - this.shownAt) });
+    track('vote', {
+      design: slug,
+      pos: this.idx + 1,
+      value: vote,
+      method,
+      ms: Math.round(performance.now() - this.shownAt),
+      ...(this.undone.has(slug) ? { redo: true } : {}), // count only the last vote per design
+    });
 
     const dir = vote === 'love' ? 1 : -1;
     const markOut = () => {
@@ -350,21 +372,30 @@ class VoteFlow {
 
     this.idx += 1;
     this.updateFavCount();
-    this.announce(vote === 'love' ? `Loved ${card.dataset.name}.` : `Passed on ${card.dataset.name}.`);
+    const verdict = vote === 'love' ? `Loved ${card.dataset.name}.` : `Passed on ${card.dataset.name}.`;
+    this.showToast(vote, card.dataset.name || '');
     if (this.idx >= this.order.length) {
-      this.hideToast();
+      this.rescueFocus(card);
       this.updateProgress();
-      window.setTimeout(() => this.finishDeck(), reduceMotion() ? 150 : 520);
+      this.announce(verdict);
+      // A short pause so a mis-tap on the last card can still be undone.
+      this.finishTimer = window.setTimeout(() => this.finishDeck(), 1800);
     } else {
       this.layout(true);
-      this.activateTop();
-      this.showToast(vote, card.dataset.name || '');
+      this.activateTop(false);
+      this.announce(`${verdict} ${this.positionText()}`);
     }
+    return true;
   }
 
   private undo(): void {
+    const deckStage = this.root.querySelector<HTMLElement>('[data-stage="deck"]');
+    if (!deckStage || deckStage.hidden) return;
     const last = this.history.pop();
-    if (!last || this.idx >= this.order.length) return;
+    if (!last) return;
+    window.clearTimeout(this.finishTimer);
+    this.finishTimer = undefined;
+    this.undone.add(last.slug);
     this.hideToast();
     this.decisions.delete(last.slug);
     this.idx = this.order.indexOf(last.slug);
@@ -377,6 +408,7 @@ class VoteFlow {
     this.updateFavCount();
     track('undo', { design: last.slug });
     this.announce(`Back to ${card.dataset.name}.`);
+    this.deck.focus({ preventScroll: true });
   }
 
   private flyHeart(card: HTMLElement): void {
@@ -479,8 +511,10 @@ class VoteFlow {
     }
     document.addEventListener('keydown', (e) => {
       const deckStage = this.root.querySelector<HTMLElement>('[data-stage="deck"]');
-      const typing = (e.target as HTMLElement).closest('input, textarea, select, [contenteditable]');
-      if (!deckStage || deckStage.hidden || typing || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!deckStage || deckStage.hidden || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      const active = document.activeElement;
+      const inDeck = !active || active === document.body || deckStage.contains(active);
+      if (!inDeck) return;
       if (e.key === 'ArrowRight') {
         e.preventDefault();
         this.vote('love', 'key');
@@ -509,6 +543,8 @@ class VoteFlow {
   }
 
   private finishDeck(): void {
+    this.finishTimer = undefined;
+    this.hideToast();
     const loved = this.lovedSlugs();
     track('deck_complete', { loves: loved.length });
     this.setTint(PAPER);
@@ -529,6 +565,13 @@ class VoteFlow {
     clone.querySelector('img')?.setAttribute('alt', '');
     clone.removeAttribute('aria-label');
     clone.setAttribute('aria-hidden', 'true');
+    // Cloned sketches carry <pattern id>s: rename them, or the fill points back at the hidden deck.
+    const suffix = `-t${++this.thumbCount}`;
+    for (const el of Array.from(clone.querySelectorAll('[id]'))) {
+      const old = el.id;
+      el.id = old + suffix;
+      for (const ref of Array.from(clone.querySelectorAll(`[fill="url(#${old})"]`))) ref.setAttribute('fill', `url(#${old}${suffix})`);
+    }
     return clone;
   }
 
@@ -688,7 +731,7 @@ class VoteFlow {
       return;
     }
 
-    const honeypot = String(data.get('company') || '');
+    const honeypot = String(data.get('cori_hp') || '');
     const newsletter = data.get('newsletter') === 'yes';
     const button = q<HTMLButtonElement>('[data-submit]', form);
     button.disabled = true;
@@ -787,14 +830,21 @@ class VoteFlow {
   private bindDone(): void {
     const shareBtn = q<HTMLButtonElement>('[data-share]', this.root);
     const copyBtn = q<HTMLButtonElement>('[data-copy]', this.root);
+    const fallback = q<HTMLInputElement>('[data-copy-fallback]', this.root);
     const copy = async () => {
       const url = this.shareUrl();
       try {
         await navigator.clipboard.writeText(url);
         copyBtn.textContent = 'Link copied';
+        window.setTimeout(() => (copyBtn.textContent = 'Copy link'), 2500);
         track('share', { channel: 'copy' });
       } catch {
-        window.prompt('Copy this link', url);
+        // Some in-app browsers block the clipboard: show the link, selected, to copy by hand.
+        fallback.value = url;
+        fallback.hidden = false;
+        fallback.focus();
+        fallback.select();
+        track('share', { channel: 'manual' });
       }
     };
     shareBtn.addEventListener('click', async () => {
@@ -806,8 +856,8 @@ class VoteFlow {
         try {
           await navigator.share({ title: 'cori', text, url: this.shareUrl() });
           track('share', { channel: 'native' });
-        } catch {
-          /* dismissed */
+        } catch (error) {
+          if ((error as Error)?.name !== 'AbortError') await copy(); // blocked rather than dismissed
         }
       } else {
         await copy();
@@ -822,7 +872,9 @@ class VoteFlow {
           c.setAttribute('aria-pressed', String(c === chip));
           c.disabled = true;
         }
-        q('[data-survey-thanks]', this.root).hidden = false;
+        const thanks = q('[data-survey-thanks]', this.root);
+        thanks.hidden = false;
+        thanks.focus({ preventScroll: true });
         track('survey', { q: 'price', answer: chip.dataset.answer });
       });
     }
@@ -844,7 +896,15 @@ export function initApp(): void {
   track('page_view', { path: location.pathname });
   introHeart();
   initOptOut();
-  void retryOutbox();
+  void retryOutbox(() => track('signup', { retried: true }));
+  const firstScreen = document.querySelector('[data-first-screen]');
+  if (firstScreen && 'ResizeObserver' in window) {
+    let pending: number | undefined;
+    new ResizeObserver(() => {
+      window.clearTimeout(pending);
+      pending = window.setTimeout(() => window.dispatchEvent(new Event('cori:layout')), 150);
+    }).observe(firstScreen);
+  }
   if (vote) new VoteFlow(vote, catalog);
   // Decorative motion loads after the vote is ready, so it never delays the first card.
   const later = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb, { timeout: 1500 }) : setTimeout(cb, 300));
